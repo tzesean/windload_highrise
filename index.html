@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wind Load to MS 1553:2002</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/ibm-plex/6.4.1/css/ibm-plex.min.css');
+
+  :root{
+    --bg:#0A0A0C; --panel:#141417; --panel-2:#1B1B20; --line:#2A2A30; --line-soft:#212126;
+    --text:#F2F1F5; --text-soft:#9A98A6; --text-faint:#5F5D6B;
+    --green:#0B6623; --green-bright:#17A83B; --mint:#98FB98; --green-bg:#0F2416; --green-line:#1F4A2A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px;margin:0 auto;padding:32px 28px 90px;}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:18px;margin-bottom:26px;border-bottom:1px solid var(--line);}
+  .hdr h1{font-size:18px;margin:0 0 4px;font-weight:600;}
+  .hdr .sub{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+
+  .formcard{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px 26px;margin-bottom:20px;}
+  .formcard h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--green-bright);margin:0 0 16px;font-weight:700;padding-bottom:8px;border-bottom:1px solid var(--line-soft);}
+  .row{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft);}
+  .row:last-child{border-bottom:none;}
+  .row label{font-size:12.5px;color:var(--text-soft);font-family:'IBM Plex Mono',monospace;}
+  .row .field{display:flex;align-items:center;gap:8px;}
+  .row input[type=text], .row input[type=number], .row select{
+    background:var(--green-bg);border:1px solid var(--green-line);color:var(--mint);
+    font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;padding:8px 10px;border-radius:5px;width:160px;
+  }
+  .row input:focus, .row select:focus{outline:none;border-color:var(--green-bright);box-shadow:0 0 0 3px rgba(23,168,59,.18);}
+  .row .unit{font-size:11.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .row .note{font-size:11.5px;color:var(--text-faint);margin-top:2px;grid-column:2;}
+  .row select{width:200px;appearance:none;cursor:pointer;}
+  .row .twofield{display:flex;gap:10px;align-items:center;}
+  .row .twofield .sub{display:flex;flex-direction:column;gap:4px;}
+  .row .twofield .sub span{font-size:10px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .row .twofield input{width:100px;}
+
+  .diagram{background:#000;border:1px solid var(--line);border-radius:6px;padding:10px;margin-top:14px;display:flex;justify-content:center;}
+  .diagram img{max-width:100%;border-radius:3px;}
+  .diagram-cap{font-size:10.5px;color:var(--text-faint);text-align:center;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
+  .toggle-row{display:flex;gap:8px;}
+  .toggle-row button{padding:8px 14px;border-radius:5px;border:1px solid var(--line);background:var(--panel-2);color:var(--text-soft);font-family:'IBM Plex Mono',monospace;font-size:11.5px;cursor:pointer;font-weight:600;}
+  .toggle-row button.active{background:var(--green);border-color:var(--green-bright);color:#fff;}
+
+  .toolbar{display:flex;align-items:center;gap:12px;margin:8px 0 16px;flex-wrap:wrap;}
+  .rowcount{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-soft);background:var(--panel);border:1px solid var(--line);padding:8px 12px;display:flex;align-items:center;gap:8px;border-radius:6px;}
+  .rowcount b{color:var(--text);}
+  .rowcount .bar{width:80px;height:5px;background:var(--line);border-radius:3px;overflow:hidden;}
+  .rowcount .bar>span{display:block;height:100%;width:16%;background:var(--green-bright);}
+  .spacer{flex:1;}
+  button.action{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 18px;border-radius:6px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;}
+  button.action:disabled{opacity:.5;cursor:wait;}
+  .btn-add{background:var(--panel-2);border-color:var(--line);color:var(--text);}
+  .btn-add:hover{border-color:var(--text-faint);}
+  .btn-run{background:var(--green);color:#fff;}
+  .btn-run:hover{background:var(--green-bright);}
+  .btn-pdf{background:transparent;color:var(--text);border-color:var(--line);}
+  .btn-pdf:hover{border-color:var(--green-bright);color:var(--green-bright);}
+
+  .tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:480px;}
+  table{border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap;width:100%;}
+  th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line-soft);}
+  td:first-child, th:first-child{text-align:left;}
+  thead th{position:sticky;top:0;background:var(--panel-2);color:var(--text-soft);font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--line);z-index:2;}
+  th.sticky-col, td.sticky-col{position:sticky;left:0;background:var(--panel-2);z-index:3;font-weight:600;}
+  td.input-cell{background:rgba(23,168,59,.10);}
+  td.input-cell input{width:64px;background:transparent;border:none;color:var(--mint);font:inherit;font-weight:600;text-align:right;}
+  td.input-cell input:focus{outline:1px solid var(--green-bright);border-radius:3px;}
+  td.calc-cell{color:var(--text-faint);}
+  tbody tr:hover td{background-color:#132018 !important;}
+  .rowdel{background:transparent;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;}
+  .rowdel:hover{color:#e05252;}
+  tr.addrow td{text-align:center;padding:10px;color:var(--text-soft);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12px;border-top:1px dashed var(--line);}
+  tr.addrow:hover td{color:var(--green-bright);}
+
+  .legend{display:flex;gap:20px;margin-top:12px;font-size:11.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .legend .sw{width:11px;height:11px;display:inline-block;margin-right:6px;border-radius:2px;vertical-align:-1px;}
+  .sw-in{background:rgba(23,168,59,.22);border:1px solid var(--green-line);}
+  .sw-calc{background:var(--panel-2);border:1px solid var(--line);}
+
+  .notes-list{margin:0;padding-left:20px;color:var(--text-soft);font-size:12.5px;line-height:1.7;}
+  .notes-list>li{margin-bottom:10px;color:var(--text);}
+  .notes-list>li::marker{color:var(--green-bright);font-weight:600;}
+  .notes-sub{margin:6px 0 0;padding-left:18px;}
+  .notes-sub li{margin-bottom:4px;color:var(--text-soft);}
+  .notes-sub li::marker{color:var(--text-faint);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div>
+      <h1>Wind Load to MS 1553:2002 <span style="color:var(--text-faint);font-weight:400;">with AMD 1:2013</span></h1>
+      <div class="sub">LIVE CALCULATION — RUNS IN YOUR BROWSER</div>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Job Information</h2>
+    <div class="row"><label>Job No.</label><div class="field"><input type="text" data-bind="jobNo"></div></div>
+    <div class="row"><label>Job Title</label><div class="field"><input type="text" data-bind="jobTitle"></div></div>
+    <div class="row"><label>Designed by</label><div class="field"><input type="text" data-bind="designedBy"></div></div>
+    <div class="row"><label>Checked by</label><div class="field"><input type="text" data-bind="checkedBy"></div></div>
+    <div class="row"><label>Date</label><div class="field"><input type="text" data-bind="date"></div></div>
+  </div>
+
+  <div class="formcard">
+    <h2>Roof Angle</h2>
+    <div class="row">
+      <label>α — Roof Slope Angle</label>
+      <div class="field"><input type="number" data-bind="alpha"><span class="unit">[°]</span></div>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Wind Load Information</h2>
+    <div class="row">
+      <label>Structure Category</label>
+      <div class="field"><select data-bind="structureCategory"><option value="1">Category 1</option><option value="2">Category 2</option><option value="3">Category 3</option><option value="4">Category 4</option></select></div>
+    </div>
+    <div class="row">
+      <label>Terrain Category</label>
+      <div class="field"><select data-bind="terrainCategory"><option value="1">Category 1</option><option value="2">Category 2</option><option value="3">Category 3</option><option value="4">Category 4</option></select></div>
+    </div>
+    <div class="row">
+      <label>Basic Wind Velocity, Vbasic</label>
+      <div class="field"><input type="number" data-bind="vbasic"><span class="unit">[m/s]</span></div>
+    </div>
+    <div class="row">
+      <label>Cdyn</label>
+      <div class="field"><div class="toggle-row" id="cdynToggle"><button data-value="Considered" class="active">Considered</button><button data-value="Not Considered">Not Considered</button></div></div>
+    </div>
+    <div class="row">
+      <label>Natural Frequency</label>
+      <div class="field twofield">
+        <div class="sub"><span>na‑y [1/s]</span><input type="number" step="0.01" data-bind="naY"></div>
+        <div class="sub"><span>na‑x [1/s]</span><input type="number" step="0.01" data-bind="naX"></div>
+      </div>
+    </div>
+    <div class="row">
+      <label>Damping Factor</label>
+      <div class="field twofield">
+        <div class="sub"><span>ζ‑SLS</span><input type="number" step="0.001" data-bind="zetaSLS"></div>
+        <div class="sub"><span>ζ‑ULS</span><input type="number" step="0.001" data-bind="zetaULS"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Aerodynamic Shape Factor</h2>
+    <div class="row">
+      <label>Cp,i</label>
+      <div class="field twofield">
+        <div class="sub"><span>Positive</span><input type="number" step="0.1" data-bind="cpiPos"></div>
+        <div class="sub"><span>Negative</span><input type="number" step="0.1" data-bind="cpiNeg"></div>
+      </div>
+    </div>
+    <div class="row"><label>Area Reduction Factor, Ka</label><div class="field"><input type="number" step="0.01" data-bind="Ka"></div></div>
+    <div class="row"><label>Combination Factor, Kc</label><div class="field"><input type="number" step="0.01" data-bind="Kc"></div></div>
+    <div class="row"><label>Local Pressure Factor, Kl</label><div class="field"><input type="number" step="0.01" data-bind="Kl"></div></div>
+    <div class="row"><label>Porous Cladding Reduction Factor, Kp</label><div class="field"><input type="number" step="0.01" data-bind="Kp"></div></div>
+  </div>
+
+  <div class="formcard" id="mscard">
+    <h2>Shielding Parameter</h2>
+    <div class="row">
+      <label>Ms Method</label>
+      <div class="field"><select id="msSelect">
+        <option value="Default">Conservative — Ms = 1.0</option>
+        <option value="Suburban">Normal Suburban Housing — Ms = 0.85</option>
+        <option value="Calculate">Calculate from shielding buildings</option>
+      </select></div>
+    </div>
+    <div id="msFields" style="display:none;">
+      <div class="row"><label>Avg. height of shielding buildings, hs</label><div class="field"><input type="number" step="0.1" data-bind="hs"><span class="unit">[m]</span></div></div>
+      <div class="row"><label>Avg. breadth of shielding buildings, bs</label><div class="field"><input type="number" step="0.1" data-bind="bs"><span class="unit">[m]</span></div></div>
+      <div class="row"><label>Number of shielding buildings, ns</label><div class="field"><input type="number" step="1" data-bind="ns"></div></div>
+      <div class="row"><div></div><div class="note">ls = hs(10/ns + 5)  ·  s = ls / √(hs·bs)  ·  Ms interpolated from Table 4.3</div></div>
+    </div>
+  </div>
+
+  <div class="formcard" id="hillcard">
+    <h2>Hill Shape Parameter</h2>
+    <div class="row">
+      <label>Hill Shape Parameter</label>
+      <div class="field"><select id="hillSelect"><option value="None">None</option><option value="Hills and Ridges">Hills and Ridges</option><option value="Escarpment">Escarpment</option></select></div>
+    </div>
+    <div id="hillFields">
+      <div class="row"><label>H</label><div class="field"><input type="number" data-bind="H"><span class="unit">[m]</span></div></div>
+      <div class="row"><label>Lu</label><div class="field"><input type="number" data-bind="Lu"><span class="unit">[m]</span></div></div>
+      <div class="row"><label>x</label><div class="field"><input type="number" data-bind="x"><span class="unit">[m]</span></div></div>
+      <div class="diagram"><img id="hillFig" src="assets/Figure_4_2_input.png" alt="Hill shape diagram"></div>
+      <div class="diagram-cap" id="hillCap">Figure 4.2 — Hills and Ridges</div>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Storey Data & Results</h2>
+    <div class="toolbar">
+      <div class="rowcount"><b id="rowCountLabel">16</b> / 99 rows <div class="bar"><span id="rowCountBar"></span></div></div>
+      <div class="spacer"></div>
+      <button class="action btn-add" id="addRowBtn">+ Add Row</button>
+      <button class="action btn-run" id="runAllBtn">▶ Run All</button>
+      <button class="action btn-pdf" id="exportBtn">⤓ Generate Excel Report</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="sticky-col">Storey</th><th>Floor Ht [m]</th><th>Ly [m]</th><th>Lx [m]</th><th>Dead Load [kN]</th>
+            <th>Reduced Lvl [m]</th><th>Vdes‑y [m/s]</th><th>Wy [kPa]</th><th>Fy [kN]</th>
+            <th>Vdes‑x [m/s]</th><th>Wx [kPa]</th><th>Fx [kN]</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="sw sw-in"></span>Editable input</span>
+      <span><span class="sw sw-calc"></span>Calculated on Run All</span>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Notes</h2>
+    <ol class="notes-list">
+      <li>The calculation shall only be used for:
+        <ol type="a" class="notes-sub">
+          <li>a.	lateral forces acting on rectangular enclosed structures only</li>
+          <li>b.	structures with natural frequency > 0.2 Hz</li>
+          <li>building less than 200 m high</li>
+          <li>structures with roof spans less than 100 m</li>
+          <li>structures other than off-shore structures, bridges and transmission towers</li>
+        </ol>
+      </li>
+      <li>In this calculation, Cpe value = 0.8. Leeward External Pressure Coefficient is calculated automatically.</li>
+      <li>Internal pressure coefficient, sidewall pressure coefficient and underside roof pressure ares not considered in this calculation.</li>
+      <li>As stated in MS1553, different height from user input is used to calculate windward pressure, while the highest level is used for calculating leeward pressure.</li>
+      <li>For Structures with natural frequency > 1.0 Hz, Cdyn is taken as 1.0.</li>
+      <li>For dynamic response factor in this calculation, s = 0 for SLS, and s = z for ULS.</li>
+      <li>Peak along-wind acceleration is calculated.</li>
+      <li>Frictional Drag (Section 5.5) is not considered in this calculation. </li>  
+      <li>Total drift and inter-storey drift shall be < h/500.</li>
+      <li>Floor acceleration shall be < 0.01g for residential buildings and < 0.015g for other structures as stated in the code.</li>
+    </ol>
+  </div>
+
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
