@@ -32,15 +32,15 @@ const DEFAULT_ROWS = [
 ];
 
 export const state = {
-  jobNo: '1141', jobTitle: 'T12', designedBy: 'Designer', checkedBy: 'Checker', date: '12/6/2017',
+  jobNo: '0000', jobTitle: 'None', designedBy: 'Designer', checkedBy: 'Checker', date: '01/07/2026',
   alpha: 0,
-  structureCategory: 2, terrainCategory: 3, vbasic: 34,
+  structureCategory: 2, terrainCategory: 3, vbasic: 33.5,
   cdyn: 'Considered',
   naY: 0.2, naX: 0.2, zetaSLS: 0.005, zetaULS: 0.05,
   cpiPos: 0.6, cpiNeg: -0.3,
   Ka: 1.0, Kc: 1.0, Kl: 1.0, Kp: 1.0,
-  msMode: 'Suburban', hs: 1, bs: 4, ns: 3,
-  hillType: 'Hills and Ridges', H: 30, Lu: 34, x: 48,
+  msMode: 'Default', hs: 1, bs: 4, ns: 3,
+  hillType: 'None', H: 30, Lu: 34, x: 48,
   rows: DEFAULT_ROWS.map(r => ({
     story: r[0], floorHt: parseFloat(r[1]), ly: parseFloat(r[2]), lx: parseFloat(r[3]), deadLoad: parseFloat(r[4]),
     results: null,

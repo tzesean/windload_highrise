@@ -128,7 +128,7 @@
       <div class="field"><select data-bind="terrainCategory"><option value="1">Category 1</option><option value="2">Category 2</option><option value="3">Category 3</option><option value="4">Category 4</option></select></div>
     </div>
     <div class="row">
-      <label>Basic Wind Velocity, Vbasic</label>
+      <label>Basic Wind Speed, Vbasic</label>
       <div class="field"><input type="number" data-bind="vbasic"><span class="unit">[m/s]</span></div>
     </div>
     <div class="row">
@@ -171,7 +171,7 @@
     <div class="row">
       <label>Ms Method</label>
       <div class="field"><select id="msSelect">
-        <option value="Default">Conservative — Ms = 1.0</option>
+        <option value="Default" selected>Conservatively apply 1.0</option>
         <option value="Suburban">Normal Suburban Housing — Ms = 0.85</option>
         <option value="Calculate">Calculate from shielding buildings</option>
       </select></div>
@@ -188,7 +188,7 @@
     <h2>Hill Shape Parameter</h2>
     <div class="row">
       <label>Hill Shape Parameter</label>
-      <div class="field"><select id="hillSelect"><option value="None">None</option><option value="Hills and Ridges">Hills and Ridges</option><option value="Escarpment">Escarpment</option></select></div>
+      <div class="field"><select id="hillSelect"><option value="None" selected>Conservatively apply 1.0</option><option value="Hills and Ridges">Hills and Ridges</option><option value="Escarpment">Escarpment</option></select></div>
     </div>
     <div id="hillFields">
       <div class="row"><label>H</label><div class="field"><input type="number" data-bind="H"><span class="unit">[m]</span></div></div>
@@ -231,22 +231,22 @@
     <ol class="notes-list">
       <li>The calculation shall only be used for:
         <ol type="a" class="notes-sub">
-          <li>a.	lateral forces acting on rectangular enclosed structures only</li>
-          <li>b.	structures with natural frequency > 0.2 Hz</li>
-          <li>building less than 200 m high</li>
-          <li>structures with roof spans less than 100 m</li>
-          <li>structures other than off-shore structures, bridges and transmission towers</li>
+          <li>lateral forces acting on rectangular enclosed structures only;</li>
+          <li>structures with natural frequency &gt; 0.2 Hz;</li>
+          <li>building less than 200 m high;</li>
+          <li>structures with roof spans less than 100 m; and</li>
+          <li>structures other than off-shore structures, bridges and transmission towers.</li>
         </ol>
       </li>
       <li>In this calculation, Cpe value = 0.8. Leeward External Pressure Coefficient is calculated automatically.</li>
-      <li>Internal pressure coefficient, sidewall pressure coefficient and underside roof pressure ares not considered in this calculation.</li>
-      <li>As stated in MS1553, different height from user input is used to calculate windward pressure, while the highest level is used for calculating leeward pressure.</li>
-      <li>For Structures with natural frequency > 1.0 Hz, Cdyn is taken as 1.0.</li>
+      <li>Internal pressure coefficient, sidewall pressure coefficient and underside roof pressure are not considered in this calculation.</li>
+      <li>As stated in MS 1553, different height from user input is used to calculate windward pressure, while the highest level is used for calculating leeward pressure.</li>
+      <li>For structures with natural frequency &gt; 1.0 Hz, Cdyn is taken as 1.0.</li>
       <li>For dynamic response factor in this calculation, s = 0 for SLS, and s = z for ULS.</li>
       <li>Peak along-wind acceleration is calculated.</li>
-      <li>Frictional Drag (Section 5.5) is not considered in this calculation. </li>  
-      <li>Total drift and inter-storey drift shall be < h/500.</li>
-      <li>Floor acceleration shall be < 0.01g for residential buildings and < 0.015g for other structures as stated in the code.</li>
+      <li>Frictional Drag (Section 5.5) is not considered in this calculation.</li>
+      <li>Total drift and inter-storey drift shall be &lt; h/500.</li>
+      <li>Floor acceleration shall be &lt; 0.01g for residential buildings and &lt; 0.015g for other structures as stated in the code.</li>
     </ol>
   </div>
 
