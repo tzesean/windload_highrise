@@ -97,7 +97,7 @@ export async function exportExcelReport(state) {
   function buildDirectionSheet(row, direction, sheetNo) {
     // Job header
     ws.mergeCells(row, 2, row + 1, 4);
-    styleHeaderCell(ws.getCell(row, 2), 'Wind Load to MS 1553:2002 with AMD 1:2013', { size: 11 });
+    styleHeaderCell(ws.getCell(row, 2), 'Wind Load to MS 1553:2002', { size: 11 });
     ws.getCell(row, 6).value = 'Job No.'; ws.getCell(row, 6).font = { bold: true, size: 9 };
     ws.getCell(row, 8).value = state.jobNo; ws.getCell(row, 8).font = { bold: true, size: 9, color: { argb: 'FF0B6623' } };
     ws.getCell(row, 11).value = 'Sheet'; ws.getCell(row, 11).font = { bold: true, size: 9 };
